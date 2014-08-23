@@ -43,9 +43,12 @@ public class BetterClocks extends JavaPlugin implements Listener {
 		Player player = event.getPlayer();
 		if (player.getItemInHand().getType() == Material.WATCH) {
 			Action action = event.getAction();
+			
 			if (action == Action.RIGHT_CLICK_AIR || action == Action.RIGHT_CLICK_BLOCK) {
-				player.sendMessage(ChatColor.GOLD + "[" + ChatColor.RESET + ChatColor.RED + "BetterClocks" + 
-						ChatColor.RESET + ChatColor.GOLD + "] The current time is: " + generateLore(player.getWorld()) + ".");
+				List<String> currentTime = generateLore(player.getWorld());
+				player.sendMessage(ChatColor.GOLD + "[" + ChatColor.RESET + ChatColor.RED
+					+ "BetterClocks" + ChatColor.RESET + ChatColor.GOLD
+					+ "] " + currentTime.get(0) + currentTime.get(1) + ".");
 			}
 		}
 	}
@@ -82,10 +85,8 @@ public class BetterClocks extends JavaPlugin implements Listener {
 	}
 	
 	public List<String> generateLore(World world){
-		long time = world.getTime();
 		List<String> lore = new ArrayList<String>();
-
-		lore.add("Current time: ");
+		long time = world.getTime();
 
 		// Get minutes from tick value
 		String mins = String.valueOf((float) time % 1000 / 1000 * 60);
@@ -116,8 +117,8 @@ public class BetterClocks extends JavaPlugin implements Listener {
 			day_half = "PM";
 		}
 
-		lore.add(hours + ":" + minutes);
-		lore.add(twelve_hours + ":" + minutes + " " + day_half);
+		lore.add("Current time: ");
+		lore.add(hours + ":" + minutes + " (" + twelve_hours + ":" + minutes + " " + day_half + ")");
 		return lore;
 	}
 }
