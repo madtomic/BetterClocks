@@ -42,7 +42,8 @@ public class BetterClocks extends JavaPlugin implements Listener {
 	public void onInteract(PlayerInteractEvent event) {
 		Player player = event.getPlayer();
 		if (player.getItemInHand().getType() == Material.WATCH) {
-			if (event.getAction() == Action.RIGHT_CLICK_AIR) {
+			Action action = event.getAction();
+			if (action == Action.RIGHT_CLICK_AIR || action == Action.RIGHT_CLICK_BLOCK) {
 				player.sendMessage(ChatColor.GOLD + "[" + ChatColor.RESET + ChatColor.RED + "BetterClocks" + 
 						ChatColor.RESET + ChatColor.GOLD + "] The current time is: " + generateLore(player.getWorld()) + ".");
 			}
