@@ -2,89 +2,25 @@ package io.github.fysac.betterclocks;
 
 import java.util.ArrayList;
 import java.util.List;
-import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
-import org.bukkit.Material;
 import org.bukkit.World;
-import org.bukkit.entity.Player;
-import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.bukkit.event.block.Action;
-import org.bukkit.event.inventory.InventoryOpenEvent;
-import org.bukkit.event.player.PlayerInteractEvent;
-import org.bukkit.inventory.Inventory;
-import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public class BetterClocks extends JavaPlugin implements Listener {
-	List <Inventory> inventories = new ArrayList<Inventory>();
-
+	@Override
 	public void onEnable(){
 		PluginManager manager = getServer().getPluginManager();
-		manager.registerEvents(this, this);
-
-		getServer().getScheduler().scheduleSyncRepeatingTask(this, new Runnable() {
-			public void run() {
-				updatePlayerInventories();
-				updateOtherInventories();
-			}
-		}, 0, 2);
-	}
-
-	@EventHandler()
-	public void onInventoryOpen(InventoryOpenEvent event){
-		inventories.add(event.getInventory());
-	}
-
-	@EventHandler()
-	public void onInteract(PlayerInteractEvent event) {
-		Player player = event.getPlayer();
-		if (player.getItemInHand().getType() == Material.WATCH) {
-			Action action = event.getAction();
-			
-			if (action == Action.RIGHT_CLICK_AIR || action == Action.RIGHT_CLICK_BLOCK) {
-				List<String> currentTime = generateLore(player.getWorld());
-				player.sendMessage(ChatColor.GOLD + "[" + ChatColor.RESET + ChatColor.RED
-					+ "BetterClocks" + ChatColor.RESET + ChatColor.GOLD
-					+ "] " + currentTime.get(0) + currentTime.get(1) + ".");
-			}
-		}
-	}
-
-	public void updatePlayerInventories(){
-		for (Player p : Bukkit.getServer().getOnlinePlayers()){
-			for (ItemStack item : p.getInventory().getContents()){
-				if (item != null && item.getType() == Material.WATCH){
-					ItemMeta meta = item.getItemMeta();
-					meta.setLore(generateLore(p.getWorld()));
-					item.setItemMeta(meta);
-				}
-			}
-		}
-	}
-
-	public void updateOtherInventories(){
-		for (Inventory i : inventories){
-			if (i.getViewers().isEmpty()){
-				inventories.remove(i);
-				break;
-			}
-			else{
-				World world = i.getViewers().get(0).getWorld();
-				for (ItemStack item : i.getContents()){
-					if (item != null && item.getType() == Material.WATCH){
-						ItemMeta meta = item.getItemMeta();
-						meta.setLore(generateLore(world));
-						item.setItemMeta(meta);
-					}
-				}
-			}
-		}
+		manager.registerEvents(new CheckTimeListener(), this);
+		
+		InventoryUpdateTask inventoryUpdater = new InventoryUpdateTask(this);
+		inventoryUpdater.start();
 	}
 	
-	public List<String> generateLore(World world){
+	@Override
+	public void onDisable(){}
+	
+	public static List<String> generateLore(World world){
 		List<String> lore = new ArrayList<String>();
 		long time = world.getTime();
 
