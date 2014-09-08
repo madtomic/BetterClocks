@@ -8,17 +8,21 @@ import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public class BetterClocks extends JavaPlugin implements Listener {
+	private InventoryUpdateTask inventoryUpdater;
+	
 	@Override
 	public void onEnable(){
 		PluginManager manager = getServer().getPluginManager();
 		manager.registerEvents(new CheckTimeListener(), this);
 		
-		InventoryUpdateTask inventoryUpdater = new InventoryUpdateTask(this);
+		inventoryUpdater = new InventoryUpdateTask(this);
 		inventoryUpdater.start();
 	}
 	
 	@Override
-	public void onDisable(){}
+	public void onDisable(){
+		inventoryUpdater.stop();
+	}
 	
 	public static List<String> generateLore(World world){
 		List<String> lore = new ArrayList<String>();
